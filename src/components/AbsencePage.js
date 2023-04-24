@@ -13,7 +13,7 @@ import {
 import { Bar, Pie } from "react-chartjs-2";
 import Chart from "chart.js/auto";
 
-const AbsencePage = () => {
+const AbsencePage = (props) => {
   // Les données en dur pour le moment
   const data = [
     {

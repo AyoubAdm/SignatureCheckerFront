@@ -4,6 +4,7 @@ import Acceuil from './components/Home'
 import AdminDashboard from './components/AdminDashboard';
 import AdminDashboardHome from './components/AdminDashboardHome';
 import AdminDashboardSearch from './components/AdminDashboardSearch';
+import AbsencePage from './components/AbsencePage';
 
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
           <Route path="admindashboard" element={<AdminDashboard/>}>
             <Route path="" element={<AdminDashboardHome/>} />
             <Route path="search" element={<AdminDashboardSearch/>} />
+            <Route path="search/:id" element={<AbsencePage/>} />
           </Route>
 
           
