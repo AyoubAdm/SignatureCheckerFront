@@ -124,7 +124,7 @@ export default function SideBar() {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h4" noWrap component="div" sx={{ flexGrow: 1 }}>
+          <Typography variant="h4" noWrap component={Link} to="" sx={{ flexGrow: 1,color : "white", textDecoration : "none" }}>
             Signature Checker
           </Typography>
 

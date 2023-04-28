@@ -20,19 +20,25 @@ const AbsencePage = (props) => {
       idAbs: 7,
       etudiant: { idEtu: 1, nomEtu: "Sami", promo: "TD3", tp: null },
       matiere: { idMat: 2, nomMat: "histoire geo" },
-      dateAbs: "2022-11-17",
+      dateAbs: "2022-11-18",
     },
     {
       idAbs: 5,
       etudiant: { idEtu: 1, nomEtu: "Sami", promo: "TD3", tp: null },
       matiere: { idMat: 2, nomMat: "francais" },
-      dateAbs: "2022-12-15",
+      dateAbs: "2022-12-19",
     },
     {
       idAbs: 7,
       etudiant: { idEtu: 1, nomEtu: "Sami", promo: "TD3", tp: null },
       matiere: { idMat: 2, nomMat: "mathematique" },
-      dateAbs: "2022-04-11",
+      dateAbs: "2022-04-20",
+    },
+    {
+      idAbs: 99,
+      etudiant: { idEtu: 1, nomEtu: "Sami", promo: "TD3", tp: null },
+      matiere: { idMat: 2, nomMat: "mathematique" },
+      dateAbs: "2022-04-18",
     },
     {
       idAbs: 12,
@@ -75,6 +81,7 @@ const AbsencePage = (props) => {
     data.forEach((absence) => {
       const month = new Date(absence.dateAbs).getMonth() + 1;
       const subject = absence.matiere.nomMat;
+      
 
       if (!absencesByMonthAndSubject[month]) {
         absencesByMonthAndSubject[month] = {};
@@ -121,7 +128,7 @@ const AbsencePage = (props) => {
     const absences = {};
 
     data.forEach((absence) => {
-      const subject = absence.matiere.nomMat;
+      const subject = absence.matiere.nomMat
       if (!absences[subject]) {
         absences[subject] = 0;
       }
