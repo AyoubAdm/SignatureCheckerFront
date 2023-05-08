@@ -138,6 +138,7 @@ const [rowsPerPage, setRowsPerPage] = useState(5);
       <CircularProgress />
     </Box>
   ) : (
+    <>
     <TableContainer >
       <Table>
         <TableHead>
@@ -162,7 +163,6 @@ const [rowsPerPage, setRowsPerPage] = useState(5);
       </Table>
     </TableContainer>
     
-  )}
   <TablePagination
   component="div"
   count={filteredTeachers.length}
@@ -173,7 +173,9 @@ const [rowsPerPage, setRowsPerPage] = useState(5);
   rowsPerPageOptions={[5, 10, 25]}
 />
 
+  </>
+  )}
   </Paper>
 </Box>
-  );
+);
 }

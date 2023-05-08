@@ -5,6 +5,9 @@ import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import StudentSettings from './StudentSettings';
+import TeacherSettings from './TeacherSettings';
+import PromotionSettings from './PromotionSettings';
+import MatiereSettings from './MatiereSettings';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -49,23 +52,27 @@ export default function Settings() {
   return (
     <Box sx={{ width: '100%' }}>
         <Typography variant='h4' align='center'>Paramètres</Typography>
-        <Typography variant='body1'>Vous pouvez ici ajouter/modifier/supprimer un étudiant, un enseignant ou un administrateur</Typography>
+        <Typography variant='body1' sx={{mt: 3, mb:3}}>Vous pouvez ici ajouter/modifier/supprimer un étudiant, un enseignant, une promotion, ainsi qu'une matiere.</Typography>
 
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
           <Tab label="Etudiants" {...a11yProps(0)} />
           <Tab label="Enseignants" {...a11yProps(1)} />
-          <Tab label="Administrateur" {...a11yProps(2)} />
+          <Tab label="Promotions" {...a11yProps(2)} />
+          <Tab label="Matieres" {...a11yProps(3)} />
         </Tabs>
       </Box>
       <TabPanel value={value} index={0}>
         <StudentSettings />
       </TabPanel>
       <TabPanel value={value} index={1}>
-        EnseignantsStepper
+        <TeacherSettings />
       </TabPanel>
       <TabPanel value={value} index={2}>
-        AdministrateursStepper
+        <PromotionSettings />
+      </TabPanel>
+      <TabPanel value={value} index={3}>
+        <MatiereSettings />
       </TabPanel>
     </Box>
   );
