@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import AdminDashboardSearchStudent from './AdminDashboardSearchStudent';
 import AdminDashboardSearchTeacher from './AdminDashboardSearchTeacher';
+import AdminDashboardSearchMatiere from './AdminDashboardSearchMatiere';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -53,7 +54,8 @@ export default function BasicTabs() {
         <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
           <Tab label="Etudiants" {...a11yProps(0)} />
           <Tab label="Enseignants" {...a11yProps(1)} />
-          <Tab label="Administrateurs" {...a11yProps(2)} />
+          <Tab label="Matieres" {...a11yProps(2)} />
+          <Tab label="Administrateurs" {...a11yProps(3)} />
         </Tabs>
       </Box>
       <TabPanel value={value} index={0}>
@@ -63,6 +65,9 @@ export default function BasicTabs() {
         <AdminDashboardSearchTeacher />
       </TabPanel>
       <TabPanel value={value} index={2}>
+        <AdminDashboardSearchMatiere />
+      </TabPanel>
+      <TabPanel value={value} index={3}>
         A faire
       </TabPanel>
     </Box>

@@ -7,6 +7,7 @@ import AdminDashboardSearch from './components/AdminDashboardSearch';
 import AbsencePage from './components/AbsencePage';
 import Login from './components/Login';
 import Settings from './components/Settings';
+import MatierePage from './components/MatierePage';
 
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
             <Route path="" element={<AdminDashboardHome/>} />
             <Route path="search" element={<AdminDashboardSearch/>} />
             <Route path="search/:id" element={<AbsencePage/>} />
+            <Route path="matiere/:id" element={<MatierePage/>} />
             <Route path="settings" element = {<Settings />} />
           </Route>
         
