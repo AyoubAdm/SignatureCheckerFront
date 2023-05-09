@@ -13,78 +13,43 @@ import {
 import { Bar, Pie } from "react-chartjs-2";
 import Chart from "chart.js/auto";
 
-const data = [
-  {
-    idAbs: 7,
-    etudiant: { idEtu: 1, nomEtu: "Sami", promo: "TD3", tp: null },
-    matiere: { idMat: 2, nomMat: "histoire geo" },
-    dateAbs: "2022-11-18",
-  },
-  {
-    idAbs: 5,
-    etudiant: { idEtu: 1, nomEtu: "Sami", promo: "TD3", tp: null },
-    matiere: { idMat: 2, nomMat: "francais" },
-    dateAbs: "2022-12-19",
-  },
-  {
-    idAbs: 7,
-    etudiant: { idEtu: 1, nomEtu: "Sami", promo: "TD3", tp: null },
-    matiere: { idMat: 2, nomMat: "L équilibre financier" },
-    dateAbs: "2022-04-20",
-  },
-  {
-    idAbs: 99,
-    etudiant: { idEtu: 1, nomEtu: "Sami", promo: "TD3", tp: null },
-    matiere: { idMat: 2, nomMat: "L équilibre financier" },
-    dateAbs: "2022-04-18",
-  },
-  {
-    idAbs: 12,
-    etudiant: { idEtu: 1, nomEtu: "Sami", promo: "TD3", tp: null },
-    matiere: { idMat: 2, nomMat: "L équilibre financier" },
-    dateAbs: "2022-05-11",
-  },
-];
-const countAbsencesByDayOfWeek = (data) => {
-  const days = [
-    "Dimanche",
-    "Lundi",
-    "Mardi",
-    "Mercredi",
-    "Jeudi",
-    "Vendredi",
-    "Samedi",
-  ];
-  const absencesByDay = Array(7).fill(0);
-
-  data.forEach((absence) => {
-    const day = new Date(absence.dateAbs).getDay();
-    absencesByDay[day]++;
-  });
-
-  return days.map((day, index) => ({
-    day,
-    absences: absencesByDay[index],
-  }));
-};
 
 const AbsencePage = (props) => {
   // Les données en dur pour le moment
   
-
+  const [data, setData] = useState([]);
   const [absencesBySubject, setAbsencesBySubject] = useState({});
   const [absencesByDay, setAbsencesByDay] = useState([]);
   const [maxAbsencesByMonth, setMaxAbsencesByMonth] = useState([]);
   const [absencesOverTime, setAbsencesOverTime] = useState({});
+  const countAbsencesByDayOfWeek = (data) => {
+    const days = [
+      "Lundi",
+      "Mardi",
+      "Mercredi",
+      "Jeudi",
+      "Vendredi",
+    ];
+    const absencesByDay = Array(5).fill(0);
 
+    data.forEach((absence) => {
+      const day = new Date(absence.dateAbs).getDay();
+      absencesByDay[day]++;
+    });
+
+    return days.map((day, index) => ({
+      day,
+      absences: absencesByDay[index+2],
+    }));
+  };
 
   const findMaxAbsencesByMonthAndSubject = (data) => {
     const absencesByMonthAndSubject = {};
 
     data.forEach((absence) => {
       const month = new Date(absence.dateAbs).getMonth() + 1;
-      const subject = absence.matiere.nomMat;
-      
+      const subject = (absence.matiere.nomMat);
+
 
       if (!absencesByMonthAndSubject[month]) {
         absencesByMonthAndSubject[month] = {};
@@ -126,12 +91,31 @@ const AbsencePage = (props) => {
       .map(([date, absences]) => ({ date, absences }))
       .sort((a, b) => (a.date > b.date ? 1 : -1));
   };
+  
 
   useEffect(() => {
     const absences = {};
 
+    const fetchData = async () => {
+      try {
+        const response = await fetch('http://localhost:8080/api/absences/etudiant/1', {
+        method: 'GET',
+        headers: {
+          'Authorization': 'Basic ' + window.btoa('admin:admin'),
+        },
+      });
+
+        const jsonData = await response.json();
+        setData(jsonData);
+      } catch (error) {
+        console.error('Erreur lors de la récupération des données:', error);
+      }
+    };
+  
+    fetchData();
+
     data.forEach((absence) => {
-      const subject = absence.matiere.nomMat
+      const subject = absence.matiere.nomMat.substring(12);
       if (!absences[subject]) {
         absences[subject] = 0;
       }
@@ -246,79 +230,12 @@ const AbsencePage = (props) => {
     },
   };
 
- /* return (
-    <Container>
-      <Typography variant="h4" style={{ marginBottom: "1rem" }}>
-        Statistiques des absences
-      </Typography>
-      <Grid container spacing={3}>
-        <Grid item xs={12} sm={6}>
-          <Paper>
-            <Bar data={chartData} />
-          </Paper>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <Paper>
-            <Pie data={pieChartData} />
-          </Paper>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <Paper>
-            <Bar
-              data={horizontalBarChartData}
-              options={horizontalBarChartOptions}
-            />
-          </Paper>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <Typography variant="h6">Absences par matière :</Typography>
-          <ul>
-            {Object.entries(absencesPercentage).map(([subject, percentage]) => (
-              <li key={subject}>
-                <Typography>
-                  {subject}: {percentage}% ({absencesBySubject[subject]}{" "}
-                  absence(s))
-                </Typography>
-              </li>
-            ))}
-          </ul>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <Typography variant="h6">Absences par mois :</Typography>
-          <ul>
-            {Object.entries(absencesByMonth).map(([month, count]) => (
-              <li key={month}>
-                <Typography>
-                  {monthNames[month - 1]}: {count} absence(s)
-                </Typography>
-              </li>
-            ))}
-          </ul>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <Typography variant="h6">
-            Absences par jour de la semaine :
-          </Typography>
-          <ul>
-            {absencesByDay.map(({ day, absences }) => (
-              <li key={day}>
-                <Typography>
-                  {day}: {absences} absence(s)
-                </Typography>
-              </li>
-            ))}
-          </ul>
-        </Grid>
-      </Grid>
-    </Container>
-  );*/
   return (
     <Container>
       <Box sx={{ flexGrow: 1, mt: 4 }}>
         <Grid container spacing={4}>
-        
           <Grid item xs={12} sm={6}>
-            <Card>
+            <Card elevation={3}>
               <CardHeader title="Absences par jour de la semaine" />
               <CardContent>
                 <ul>
@@ -375,9 +292,7 @@ const AbsencePage = (props) => {
               </li>
             ))}
           </ul>
-        </Grid>
-                    
-          {/* ... (autres éléments de la grille) */}
+        </Grid>             
         </Grid>
       </Box>
     </Container>
