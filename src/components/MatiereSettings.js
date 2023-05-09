@@ -35,10 +35,16 @@ export default function MatiereSettings() {
       },
       body: JSON.stringify(
         {
-          "nomPromo": nom,
+          "nomMat": nom,
         }
       )
-    })
+    }).then((response) => {
+      if (response.status === 409){
+        throw new Error('Matiere already exists');
+      }
+      else if (!response.ok) {
+        throw new Error('Failed to delete student');
+  }})
   }
 
   const  deleteMatiere = async () => {
@@ -91,7 +97,12 @@ export default function MatiereSettings() {
         }
         catch (e) {
           requestError = true;
-          setError("Une erreur est survenue. L'action a échoué")
+          if (e.message === "Matiere already exists") {
+            setError("Cette matiere existe déjà.");
+          }
+          else{
+            setError("Une erreur est survenue. L'action a échoué")
+          }
         }
       }
 
@@ -145,7 +156,7 @@ export default function MatiereSettings() {
           {activeStep === steps.length ? (
             <React.Fragment>
               <Typography sx={{ m: 3 }} variant='body1' >
-                Enseignant {action === 'Ajouter' ? 'ajouté' : "supprimé"} avec succès
+                Matiere {action === 'Ajouter' ? 'ajouté' : "supprimé"} avec succès
               </Typography>
               <Button onClick={() => { setActiveStep(0); setError(""); setNom(""); }}>
                 Reinitialiser le formulaire

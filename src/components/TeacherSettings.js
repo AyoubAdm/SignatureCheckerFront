@@ -40,7 +40,13 @@ export default function TeacherSettings() {
           "nomEns": nom.toUpperCase() + " " + prenom.toUpperCase(),
         }
       )
-    })
+    }).then((response) => {
+      if (response.status === 409){
+        throw new Error('Teacher already exists');
+      }
+      else if (!response.ok) {
+        throw new Error('Failed to delete student');
+  }})
   }
 
   const  deleteTeacher = async () => {
@@ -111,8 +117,13 @@ export default function TeacherSettings() {
           await addTeacher()
         }
         catch (e) {
-          requestError = true;
-          setError("Une erreur est survenue. L'action a échoué")
+          if(e.message === "Teacher already exists"){
+            requestError = true;
+            setError("Cet enseignant existe déjà.");
+          }
+          else{
+            setError("Une erreur est survenue. L'action a échoué")
+          }
         }
       }
 

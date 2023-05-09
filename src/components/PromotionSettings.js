@@ -38,7 +38,14 @@ export default function PromotionSettings() {
           "nomPromo": nom,
         }
       )
-    })
+    }).then((response) => {
+      console.log(response);
+      if (response.status === 409){
+        throw new Error('Promotion already exists');
+      }
+      else if (!response.ok) {
+        throw new Error('Failed to delete student');
+  }})
   }
 
   const  deletePromotion = async () => {
@@ -91,7 +98,12 @@ export default function PromotionSettings() {
         }
         catch (e) {
           requestError = true;
+          if(e.message === "Promotion already exists"){
+            setError("Cette promotion existe déjà");
+          }
+          else{
           setError("Une erreur est survenue. L'action a échoué")
+          }
         }
       }
 
@@ -145,7 +157,7 @@ export default function PromotionSettings() {
           {activeStep === steps.length ? (
             <React.Fragment>
               <Typography sx={{ m: 3 }} variant='body1' >
-                Enseignant {action === 'Ajouter' ? 'ajouté' : "supprimé"} avec succès
+                Promotion {action === 'Ajouter' ? 'ajouté' : "supprimé"} avec succès
               </Typography>
               <Button onClick={() => { setActiveStep(0); setError(""); setNom(""); }}>
                 Reinitialiser le formulaire

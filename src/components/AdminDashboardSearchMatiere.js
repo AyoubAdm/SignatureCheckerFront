@@ -153,7 +153,7 @@ const navigate = useNavigate();
     .map((teacher) => (
       <TableRow key={teacher.nomMat}
         hover
-        onClick={()=>{navigate(`/AdminDashboard/matiere/${teacher.nomMat}`, { state: 2 })}}
+        onClick={()=>{navigate(`/AdminDashboard/matiere/${teacher.nomMat}`, { state: {matiere : teacher.nomMat} })}}
         role="checkbox"
         tabIndex={-1}
         sx={{ cursor: 'pointer' }}

@@ -66,7 +66,13 @@ export default function StudentSettings() {
           "promo": promo
         }
       )
-    })
+    }).then((response) => {
+      if (response.status === 409){
+        throw new Error('Student already exists');
+      }
+      else if (!response.ok) {
+        throw new Error('Failed to delete student');
+  }})
   }
 
   const  deleteStudent = async () => {
@@ -223,7 +229,12 @@ const modifyStudent = async () => {
         }
         catch (e) {
           requestError = true;
-          setError("Une erreur est survenue. L'action a échoué")
+          if(e.message === "Student already exists"){
+            setError("Cet étudiant existe déjà. Si vous souhaitez modifier ses informations, veuillez utiliser l'option 'Modifier un étudiant'");
+          }
+          else{
+            setError("Une erreur est survenue. L'action a échoué")
+          }
         }
       }
 
