@@ -197,7 +197,7 @@ const MatierePage = () => {
   }, [matiere]);
   
   // Utilisez les fonctions pour calculer les statistiques avec les données filtrées
-  const totalAbsences = calculateTotalAbsences(data);
+  const totalAbsences = calculateTotalAbsences(filteredData);
   const noDataMessage = filteredData.length === 0 ? "Aucune absence pour la période sélectionnée." : "";
 
 
