@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Typography,
   Container,
@@ -20,91 +21,41 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 
 const MatierePage = () => {
   const [data, setData] = useState([]);
-  const matiere = "L équilibre financier";
+  const location = useLocation();
+  const matiere = location.state.matiere;
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
-  // Pour l'instant, nous travaillons avec des données en dur
-  const rawData = [
-    {
-      idAbs: 7,
-      etudiant: { idEtu: 1, nomEtu: "yahya", promo: "TD3", tp: null },
-      matiere: { idMat: 2, nomMat: "histoire geo" },
-      dateAbs: "2022-01-17",
-    },
-    {
-      idAbs: 5,
-      etudiant: { idEtu: 1, nomEtu: "Sami", promo: "TD1", tp: null },
-      matiere: { idMat: 2, nomMat: "francais" },
-      dateAbs: "2022-11-15",
-    },
-    {
-      idAbs: 7,
-      etudiant: { idEtu: 1, nomEtu: "yahya", promo: "TD3", tp: null },
-      matiere: { idMat: 2, nomMat: "L équilibre financier" },
-      dateAbs: "2022-04-11",
-    },
-    {
-      idAbs: 12,
-      etudiant: { idEtu: 1, nomEtu: "ayoub", promo: "TD2", tp: null },
-      matiere: { idMat: 2, nomMat: "L équilibre financier" },
-      dateAbs: "2022-01-11",
-    },
-    {
-      idAbs: 12,
-      etudiant: { idEtu: 1, nomEtu: "mootez", promo: "TD1", tp: null },
-      matiere: { idMat: 2, nomMat: "L équilibre financier" },
-      dateAbs: "2022-02-11",
-    },
-    {
-        idAbs: 12,
-        etudiant: { idEtu: 1, nomEtu: "mootez", promo: "TD1", tp: null },
-        matiere: { idMat: 2, nomMat: "L équilibre financier" },
-        dateAbs: "2022-02-11",
-      },
-    {
-      idAbs: 12,
-      etudiant: { idEtu: 1, nomEtu: "yahya", promo: "TD3", tp: null },
-      matiere: { idMat: 2, nomMat: "L équilibre financier" },
-      dateAbs: "2022-02-11",
-    },
-    {
-      idAbs: 12,
-      etudiant: { idEtu: 1, nomEtu: "mootez", promo: "TD1", tp: null },
-      matiere: { idMat: 2, nomMat: "L équilibre financier" },
-      dateAbs: "2022-05-11",
-    },
-    {
-      idAbs: 12,
-      etudiant: { idEtu: 1, nomEtu: "arman", promo: "TD1", tp: null },
-      matiere: { idMat: 2, nomMat: "L équilibre financier" },
-      dateAbs: "2022-03-11",
-    },
-    {
-      idAbs: 12,
-      etudiant: { idEtu: 1, nomEtu: "yahya", promo: "TD3", tp: null },
-      matiere: { idMat: 2, nomMat: "L équilibre financier" },
-      dateAbs: "2022-06-11",
-    },
-    {
-      idAbs: 12,
-      etudiant: { idEtu: 1, nomEtu: "lamine", promo: "TD2", tp: null },
-      matiere: { idMat: 2, nomMat: "L équilibre financier" },
-      dateAbs: "2022-05-11",
-    },
-    {
-      idAbs: 12,
-      etudiant: { idEtu: 1, nomEtu: "lamine", promo: "TD2", tp: null },
-      matiere: { idMat: 2, nomMat: "L équilibre financier" },
-      dateAbs: "2022-12-11",
-    },
-    {
-      idAbs: 12,
-      etudiant: { idEtu: 1, nomEtu: "yahya", promo: "TD3", tp: null },
-      matiere: { idMat: 2, nomMat: "L équilibre financier" },
-      dateAbs: "2022-10-11",
-    },
-  ];
+  const navigate = useNavigate();
+
+  const navigateToAbsencePage = (idEtu) => {
+    navigate('/AdminDashboard/student/${idEtu}');
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('http://localhost:8080/api/absences', {
+          method: 'GET',
+          headers: {  
+            'Authorization': 'Basic ' + window.btoa('admin:admin'),
+          },
+        });
+        
+  
+        const jsonData = await response.json();
+        // Filtrer les absences pour la matière spécifique
+        const absencesForSubject = filterAbsencesForSubject(jsonData, matiere);
+        setData(absencesForSubject);
+      } catch (error) {
+        console.error('Erreur lors de la récupération des données:', error);
+      }
+    };
+  
+    fetchData();
+  }, [matiere]);
+  
+
   const filteredData = data.filter((absence) => {
     const date = new Date(absence.dateAbs);
     return (!startDate || date >= startDate) && (!endDate || date <= endDate);
@@ -126,15 +77,16 @@ const MatierePage = () => {
   };
 
   const absencesCount = filteredData.reduce((acc, curr) => {
-    acc[curr.etudiant.nomEtu] = (acc[curr.etudiant.nomEtu] || 0) + 1;
+    acc[curr.etudiant.nomEtu] = (acc[curr.etudiant.nomEtu] || {absences: 0, id: curr.etudiant.idEtu});
+    acc[curr.etudiant.nomEtu].absences++;
     return acc;
   }, {});
 
   // Trier les étudiants par le nombre d'absences et prendre les cinq premiers
   const top5 = Object.entries(absencesCount)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 5)
-    .map(([name, absences]) => ({ name, absences }));
+  .sort((a, b) => b[1].absences - a[1].absences)
+  .slice(0, 5)
+  .map(([name, {absences, id}]) => ({ name, absences, id }));
 
   // Calcul du nombre d'absences pour chaque groupe de TD
   const absencesCountByGroup = filteredData.reduce((acc, curr) => {
@@ -191,10 +143,6 @@ const MatierePage = () => {
     return text;
   };
   
-  useEffect(() => {
-    const absencesForSubject = filterAbsencesForSubject(rawData, matiere);
-    setData(absencesForSubject);
-  }, [matiere]);
   
   // Utilisez les fonctions pour calculer les statistiques avec les données filtrées
   const totalAbsences = calculateTotalAbsences(filteredData);
@@ -219,6 +167,7 @@ const MatierePage = () => {
                       setStartDate(newValue);
                     }}
                     renderInput={(params) => <TextField {...params} />}
+                    format="dd/MM/yyyy"
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -229,6 +178,7 @@ const MatierePage = () => {
                       setEndDate(newValue);
                     }}
                     renderInput={(params) => <TextField {...params} />}
+                    format="dd/MM/yyyy"
                   />
                 </Grid>
               </Grid>
@@ -285,10 +235,20 @@ const MatierePage = () => {
                     <ListItemText
                       primary={student.name}
                       secondary={student.absences + " absences"}
+                      style={{ cursor: "pointer" }}
+                      onClick={() => navigateToAbsencePage(student.id)}
+                      primaryTypographyProps={{ 
+                        sx: { 
+                          '&:hover': { 
+                            textDecoration: 'underline'
+                          } 
+                        } 
+                      }}
                     />
                   </ListItem>
                 ))}
               </List>
+
             </Paper>
           </Grid>
           <Grid item xs={12} md={6}>

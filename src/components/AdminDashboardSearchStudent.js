@@ -404,7 +404,7 @@ useEffect(() => {
                       return (
                         <TableRow
                           hover
-                          onClick={()=>{navigate(`${students.idEtu}`, { state: { students } })}}
+                          onClick={()=>{navigate(`/AdminDashboard/student/${students.idEtu}`, { state: {student : students.idEtu} })}}
                           role="checkbox"
                           tabIndex={-1}
                           key={students.idEtu}

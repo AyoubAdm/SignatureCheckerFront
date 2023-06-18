@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Typography,
   Container,
@@ -10,6 +11,7 @@ import {
   CardHeader,
 } from "@mui/material";
 
+
 import { Bar, Pie } from "react-chartjs-2";
 import Chart from "chart.js/auto";
 
@@ -20,6 +22,8 @@ const AbsencePage = (props) => {
   const [data, setData] = useState([]);
   const [absencesBySubject, setAbsencesBySubject] = useState({});
   const [absencesByDay, setAbsencesByDay] = useState([]);
+  const location = useLocation();
+  const idEtu = location.state.student;
   const [maxAbsencesByMonth, setMaxAbsencesByMonth] = useState([]);
   const [absencesOverTime, setAbsencesOverTime] = useState({});
   const countAbsencesByDayOfWeek = (data) => {
@@ -98,7 +102,7 @@ const AbsencePage = (props) => {
 
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:8080/api/absences/etudiant/1', {
+        const response = await fetch(`http://localhost:8080/api/absences/etudiant/${idEtu}`, {
         method: 'GET',
         headers: {
           'Authorization': 'Basic ' + window.btoa('admin:admin'),
@@ -225,7 +229,11 @@ const AbsencePage = (props) => {
     indexAxis: "y",
     scales: {
       x: {
+        ticks: {
+          stepSize: 1,
+        },
         beginAtZero: true,
+
       },
     },
   };

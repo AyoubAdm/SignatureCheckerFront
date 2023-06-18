@@ -1,6 +1,6 @@
 import './App.css';
 import {BrowserRouter, Routes, Route} from 'react-router-dom'
-import Acceuil from './components/Home'
+import Acceuil from './components/Login'
 import AdminDashboard from './components/AdminDashboard';
 import AdminDashboardHome from './components/AdminDashboardHome';
 import AdminDashboardSearch from './components/AdminDashboardSearch';
@@ -8,6 +8,7 @@ import AbsencePage from './components/AbsencePage';
 import Login from './components/Login';
 import Settings from './components/Settings';
 import MatierePage from './components/MatierePage';
+import Analyse from './components/GeneralStatsPage';
 
 
 function App() {
@@ -19,8 +20,9 @@ function App() {
 
           <Route path="admindashboard" element={<AdminDashboard/>}>
             <Route path="" element={<AdminDashboardHome/>} />
+            <Route path="analyse" element={<Analyse/>} />
             <Route path="search" element={<AdminDashboardSearch/>} />
-            <Route path="search/:id" element={<AbsencePage/>} />
+            <Route path="student/:id" element={<AbsencePage/>} />
             <Route path="matiere/:id" element={<MatierePage/>} />
             <Route path="settings" element = {<Settings />} />
           </Route>
