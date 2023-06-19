@@ -7,7 +7,9 @@ import Box from '@mui/material/Box';
 import StudentSettings from './StudentSettings';
 import TeacherSettings from './TeacherSettings';
 import PromotionSettings from './PromotionSettings';
+import AdminSettings from './AdminSettings';
 import MatiereSettings from './MatiereSettings';
+
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -60,6 +62,7 @@ export default function Settings() {
           <Tab label="Enseignants" {...a11yProps(1)} />
           <Tab label="Promotions" {...a11yProps(2)} />
           <Tab label="Matieres" {...a11yProps(3)} />
+          <Tab label="Administrateurs" {...a11yProps(4)} />
         </Tabs>
       </Box>
       <TabPanel value={value} index={0}>
@@ -73,6 +76,9 @@ export default function Settings() {
       </TabPanel>
       <TabPanel value={value} index={3}>
         <MatiereSettings />
+      </TabPanel>
+      <TabPanel value={value} index={4}>
+        <AdminSettings />
       </TabPanel>
     </Box>
   );

@@ -9,10 +9,15 @@ import Login from './components/Login';
 import Settings from './components/Settings';
 import MatierePage from './components/MatierePage';
 import Analyse from './components/GeneralStatsPage';
+import AuthProvider from './components/AuthProvider';
+import Profil from './components/Profil';
+
 
 
 function App() {
   return (
+    <AuthProvider>
+
     <BrowserRouter>
         <Routes>
           <Route path="" element={<Acceuil/>} />
@@ -25,6 +30,7 @@ function App() {
             <Route path="student/:id" element={<AbsencePage/>} />
             <Route path="matiere/:id" element={<MatierePage/>} />
             <Route path="settings" element = {<Settings />} />
+            <Route path="myprofil" element = {<Profil />} />
           </Route>
         
           <Route path="login" element={<Login/>} />
@@ -33,6 +39,7 @@ function App() {
           
         </Routes>
     </BrowserRouter>
+    </AuthProvider>
   );
 }
 

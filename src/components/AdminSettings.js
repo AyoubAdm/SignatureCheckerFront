@@ -7,29 +7,23 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import { Paper } from '@mui/material';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
-import FormControl from '@mui/material/FormControl';
 
 
 
-
-export default function TeacherSettings() {
+export default function AdminSettings() {
 
 
   const [activeStep, setActiveStep] = React.useState(0);
-  const [nom, setNom] = React.useState("")
-  const [prenom, setPrenom] = React.useState("")
-  const [civility, setCivility] = React.useState('');
+  const [identifiant, setIdentifiant] = React.useState("")
+  const [mdp, setMdp] = React.useState("")
   const [error, setError] = React.useState('');
-  const [steps, setSteps] = React.useState(["Action", "Informations de l'enseignant"]);
+  const [steps, setSteps] = React.useState(["Action", "Informations de l'administrateur"]);
   const [action, setAction] = React.useState('');
 
 
 
-  const addTeacher = async () => {
-    await fetch("http://localhost:8080/api/enseignants", {
+  const addAdmin = async () => {
+    await fetch("http://localhost:8080/api/utilisateur", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -37,76 +31,75 @@ export default function TeacherSettings() {
       },
       body: JSON.stringify(
         {
-          "nomEns": nom.toUpperCase() + " " + prenom.toUpperCase(),
+          "nomUser": identifiant,
+          "pswUser" : mdp,
+          "roleUser" : true
         }
       )
     }).then((response) => {
       if (response.status === 409){
-        throw new Error('Teacher already exists');
+        throw new Error('Admin already exists');
       }
       else if (!response.ok) {
-        throw new Error('Failed to delete teacher');
+        throw new Error('Failed to delete Admin');
   }})
   }
 
-  const  deleteTeacher = async () => {
-    await fetch(`http://localhost:8080/api/enseignants/${encodeURIComponent(nom.toUpperCase() + " " + prenom.toUpperCase())}`, {
+  const  deleteAdmin = async () => {
+    await fetch(`http://localhost:8080/api/utilisateur/${encodeURIComponent(identifiant)}`, {
       method: 'DELETE',
       headers: {
         'Authorization': 'Basic ' + window.btoa('admin:admin'),
       },
     }).then((response) => {
       if (response.status === 404){
-        throw new Error('Teacher not found');
+        throw new Error('Admin not found');
       }
       else if (!response.ok) {
-        throw new Error('Failed to delete teacher');
+        throw new Error('Failed to delete admin');
   }})
 }
-
-    const handleChangeCivility = (event) => {
-      setCivility(event.target.value);
-    };
 
 
     const step1 = (
       <Box sx={{ margin: '5rem auto', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
         <Typography variant='h4' align='center'  >Je souhaite : </Typography>
-        <Button color="success" variant='outlined' sx={{ mt: 2 }} onClick={() => {handleNext(); setAction("Ajouter"); }}>Ajouter un enseignant</Button>
-        <Button color="error" variant='outlined' sx={{ mt: 2 }} onClick={() => {handleNext(); setAction("Supprimer") }}>supprimer un enseignant</Button>
+        <Button color="success" variant='outlined' sx={{ mt: 2 }} onClick={() => {handleNext(); setAction("Ajouter"); }}>Ajouter un administrateur</Button>
+        <Button color="error" variant='outlined' sx={{ mt: 2 }} onClick={() => {handleNext(); setAction("Supprimer") }}>supprimer un administrateur</Button>
 
       </Box>
     )
 
     const step2 =
+      action === "Ajouter" ?
       (
         <Box sx={{ m: 5, display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
-          <FormControl sx={{ mb: 2, width: "120px" }}>
-            <InputLabel id="civility">Civilité</InputLabel>
 
-            <Select
-              labelId="civility"
-              id="demo-simple-select"
-              value={civility}
-              label="Civilité"
-              onChange={handleChangeCivility}
-            >
-              <MenuItem value={"M."}>M.</MenuItem>
-              <MenuItem value={"Mme"}>Mme</MenuItem>
-            </Select>
-          </FormControl>
-          <TextField id="nom" value={nom} label="Nom de l'enseignant" onChange={(e) => { setNom(e.target.value); setError("") }} variant="outlined" sx={{ mb: 2 }} />
-          <TextField id="prenom" value={prenom} label="Prenom de l'enseignant" onChange={(e) => { setPrenom(e.target.value); setError("") }} variant="outlined" />
+          <TextField id="identifiant" value={identifiant} label="Identifiant" onChange={(e) => { setIdentifiant(e.target.value); setError("") }} variant="outlined" sx={{ mb: 2 }} />
+          <TextField id="mdp" value={mdp} label="Mot de passe" onChange={(e) => { setMdp(e.target.value); setError("") }} variant="outlined" />
           <Typography sx={{ color: 'red', fontWeight: "bold", mt: 3 }}>
             {error}
           </Typography>
         </Box>
 
+      ) : 
+      (
+        <Box sx={{ m: 5, display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
+
+        <TextField id="identifiant" value={identifiant} label="Identifiant" onChange={(e) => { setIdentifiant(e.target.value); setError("") }} variant="outlined" sx={{ mb: 2 }} />
+        <Typography sx={{ color: 'red', fontWeight: "bold", mt: 3 }}>
+          {error}
+        </Typography>
+      </Box>
       )
       const  handleNext =  async () => {
 
       let requestError = false
-      if (activeStep === 1 && (nom === "" || prenom === "" || civility === "")) {
+      if (activeStep === 1 && (identifiant === "" || mdp === "") && action === "Ajouter") {
+        setError("Veuillez remplir tous les champs")
+        return
+      }
+      else if (activeStep === 1 && identifiant === "" && action === "Supprimer") {
         setError("Veuillez remplir tous les champs")
         return
       }
@@ -114,12 +107,12 @@ export default function TeacherSettings() {
       //Ajouter un enseignant
       if (action === "Ajouter" && activeStep === steps.length - 1) {
         try {
-          await addTeacher()
+          await addAdmin()
         }
         catch (e) {
-          if(e.message === "Teacher already exists"){
+          if(e.message === "Admin already exists"){
             requestError = true;
-            setError("Cet enseignant existe déjà.");
+            setError("Cet administrateur existe déjà.");
           }
           else{
             setError("Une erreur est survenue. L'action a échoué")
@@ -130,12 +123,12 @@ export default function TeacherSettings() {
       //supprimer enseignant
       else if (action === "Supprimer" && activeStep === steps.length - 1) {
         try {
-          await deleteTeacher()
+          await deleteAdmin()
         }
         catch (e) {
           requestError = true;
-          if(e.message === "Teacher not found"){
-            setError("Cet enseignant n'existe pas. Veuillez verifier les informations saisies.");
+          if(e.message === "Admin not found"){
+            setError("Cet administrateur n'existe pas. Veuillez verifier les informations saisies.");
           }
           else{
             setError("Une erreur est survenue. L'action a échoué")
@@ -151,9 +144,8 @@ export default function TeacherSettings() {
     const handleBack = () => {
       setActiveStep((prevActiveStep) => prevActiveStep - 1);
       if (activeStep === 1) {
-        setNom("")
-        setPrenom("")
-        setCivility('')
+        setIdentifiant("")
+        setMdp("")
       }
       setError("")
     };
@@ -180,9 +172,9 @@ export default function TeacherSettings() {
           {activeStep === steps.length ? (
             <React.Fragment>
               <Typography sx={{ m: 3 }} variant='body1' >
-                Enseignant {action === 'Ajouter' ? 'ajouté' : "supprimé"} avec succès
+                Administrateur {action === 'Ajouter' ? 'ajouté' : "supprimé"} avec succès
               </Typography>
-              <Button onClick={() => { setActiveStep(0); setError(""); setNom(""); setCivility(''); setPrenom(""); }}>
+              <Button onClick={() => { setActiveStep(0); setError(""); setIdentifiant(""); setMdp(""); }}>
                 Reinitialiser le formulaire
               </Button>
             </React.Fragment>

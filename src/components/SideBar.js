@@ -19,7 +19,7 @@ import ListItemText from '@mui/material/ListItemText';
 import SettingsIcon from '@mui/icons-material/Settings';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import PersonSearchIcon from '@mui/icons-material/PersonSearch';
-import BarChartIcon from '@mui/icons-material/BarChart';
+import HomeIcon from '@mui/icons-material/Home';
 import { Outlet, Link } from 'react-router-dom'
 
 
@@ -58,7 +58,9 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme, open }) => ({
+})
+
+(({ theme, open }) => ({
   zIndex: theme.zIndex.drawer + 1,
   transition: theme.transitions.create(['width', 'margin'], {
     easing: theme.transitions.easing.sharp,
@@ -127,6 +129,8 @@ export default function SideBar() {
           <Typography variant="h4" noWrap component={Link} to="" sx={{ flexGrow: 1,color : "white", textDecoration : "none" }}>
             Signature Checker
           </Typography>
+          
+          <Link to ="myprofil" className="link" sx={{color : "white", textDecoration : "none"}}>
 
           <IconButton
             size="large"
@@ -134,9 +138,10 @@ export default function SideBar() {
             aria-controls="menu-appbar"
             aria-haspopup="true"
             color="inherit"
-          >
+            >
             <AccountCircle />
           </IconButton>
+            </Link>
         </Toolbar>
       </AppBar>
       <Drawer variant="permanent" open={open} PaperProps={{ sx: { backgroundColor: "rgba(66, 156, 183, 0.3 )" } }}>
@@ -165,7 +170,7 @@ export default function SideBar() {
                       color: "inherit"
                     }}
                   >
-                    {index % 3 === 0 ? <BarChartIcon /> : index % 3 === 1 ? <PersonSearchIcon /> : <SettingsIcon />}
+                    {index % 3 === 0 ? <HomeIcon /> : index % 3 === 1 ? <PersonSearchIcon /> : <SettingsIcon />}
                   </ListItemIcon>
                   <ListItemText primary={text.item} sx={{ opacity: open ? 1 : 0 }} />
                 </ListItemButton>
