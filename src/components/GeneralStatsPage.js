@@ -84,8 +84,8 @@ const GeneralStatsPage = () => {
         Statistiques générales des absences
       </Typography>
       <LocalizationProvider dateAdapter={AdapterDateFns} locale="frFR">
-        <Grid container spacing={2} align="center">
-          <Grid item xs={12} sm={6}>
+        <Grid xs={12}align="center" >
+          
             <DatePicker
               label="Date de début"
               value={startDate}
@@ -95,8 +95,7 @@ const GeneralStatsPage = () => {
               renderInput={(params) => <TextField {...params} />}
               format="dd/MM/yyyy"
             />
-          </Grid>
-          <Grid item xs={12} sm={6}>
+          
             <DatePicker
               label="Date de fin"
               value={endDate}
@@ -106,12 +105,12 @@ const GeneralStatsPage = () => {
               renderInput={(params) => <TextField {...params} />}
               format="dd/MM/yyyy"
             />
-          </Grid>
+
         </Grid>
       </LocalizationProvider>
 
       <Grid container spacing={2}>
-        <Grid item xs={12}>
+        <Grid item xs={50} >
           <Paper elevation={3} sx={{ p: 2 }}>
             <Typography variant="h6" gutterBottom>
               Nombre total d'absences: {filteredData.length}

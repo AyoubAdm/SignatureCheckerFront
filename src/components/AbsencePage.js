@@ -9,16 +9,15 @@ import {
   Card,
   CardContent,
   CardHeader,
+  TextField,
 } from "@mui/material";
-
-
 import { Bar, Pie } from "react-chartjs-2";
 import Chart from "chart.js/auto";
-
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 
 const AbsencePage = (props) => {
-  // Les données en dur pour le moment
-  
   const [data, setData] = useState([]);
   const [absencesBySubject, setAbsencesBySubject] = useState({});
   const [absencesByDay, setAbsencesByDay] = useState([]);
@@ -26,6 +25,10 @@ const AbsencePage = (props) => {
   const idEtu = location.state.student;
   const [maxAbsencesByMonth, setMaxAbsencesByMonth] = useState([]);
   const [absencesOverTime, setAbsencesOverTime] = useState({});
+  const [selectedStartDate, setSelectedStartDate] = useState(null);
+  const [selectedEndDate, setSelectedEndDate] = useState(null);
+  const[studentName, setStudentName] = useState("");
+
   const countAbsencesByDayOfWeek = (data) => {
     const days = [
       "Lundi",
@@ -43,7 +46,7 @@ const AbsencePage = (props) => {
 
     return days.map((day, index) => ({
       day,
-      absences: absencesByDay[index+2],
+      absences: absencesByDay[index + 2],
     }));
   };
 
@@ -52,8 +55,7 @@ const AbsencePage = (props) => {
 
     data.forEach((absence) => {
       const month = new Date(absence.dateAbs).getMonth() + 1;
-      const subject = (absence.matiere.nomMat);
-
+      const subject = absence.matiere.nomMat;
 
       if (!absencesByMonthAndSubject[month]) {
         absencesByMonthAndSubject[month] = {};
@@ -95,7 +97,6 @@ const AbsencePage = (props) => {
       .map(([date, absences]) => ({ date, absences }))
       .sort((a, b) => (a.date > b.date ? 1 : -1));
   };
-  
 
   useEffect(() => {
     const absences = {};
@@ -103,22 +104,44 @@ const AbsencePage = (props) => {
     const fetchData = async () => {
       try {
         const response = await fetch(`http://localhost:8080/api/absences/etudiant/${idEtu}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': 'Basic ' + window.btoa('admin:admin'),
-        },
-      });
-
+          method: 'GET',
+          headers: {
+            'Authorization': 'Basic ' + window.btoa('admin:admin'),
+          },
+        });
+    
         const jsonData = await response.json();
         setData(jsonData);
+    
+        if (jsonData.length > 0) {
+          const studentNamee = jsonData[0].etudiant.nomEtu;
+          setStudentName(studentNamee);
+        }
       } catch (error) {
         console.error('Erreur lors de la récupération des données:', error);
       }
     };
-  
-    fetchData();
+    
 
-    data.forEach((absence) => {
+    fetchData();
+  }, [idEtu]);
+
+  useEffect(() => {
+    const filteredData = data.filter((absence) => {
+      const date = new Date(absence.dateAbs);
+      if (selectedStartDate && selectedEndDate) {
+        return date >= selectedStartDate && date <= selectedEndDate;
+      } else if (selectedStartDate) {
+        return date >= selectedStartDate;
+      } else if (selectedEndDate) {
+        return date <= selectedEndDate;
+      }
+      return true;
+    });
+
+    const absences = {};
+
+    filteredData.forEach((absence) => {
       const subject = absence.matiere.nomMat.substring(12);
       if (!absences[subject]) {
         absences[subject] = 0;
@@ -127,22 +150,28 @@ const AbsencePage = (props) => {
     });
 
     setAbsencesBySubject(absences);
-    setAbsencesByDay(countAbsencesByDayOfWeek(data));
-    setMaxAbsencesByMonth(findMaxAbsencesByMonthAndSubject(data));
-    setAbsencesOverTime(countAbsencesOverTime(data));
-  }, [data]);
+    setAbsencesByDay(countAbsencesByDayOfWeek(filteredData));
+    setMaxAbsencesByMonth(findMaxAbsencesByMonthAndSubject(filteredData));
+    setAbsencesOverTime(countAbsencesOverTime(filteredData));
+  }, [data, selectedStartDate, selectedEndDate]);
 
-  // Calculez le nombre total d'absences
+  const handleStartDateChange = (date) => {
+    setSelectedStartDate(date);
+  };
+
+  const handleEndDateChange = (date) => {
+    setSelectedEndDate(date);
+  };
+
   const totalAbsences = data.length;
 
-  // Calculez le pourcentage d'absences par matière
   const absencesPercentage = Object.fromEntries(
     Object.entries(absencesBySubject).map(([subject, count]) => [
       subject,
       ((count / totalAbsences) * 100).toFixed(2),
     ])
   );
-  // Calculez le nombre d'absences par mois
+
   const absencesByMonth = {};
   data.forEach((absence) => {
     const month = new Date(absence.dateAbs).getMonth() + 1;
@@ -233,16 +262,36 @@ const AbsencePage = (props) => {
           stepSize: 1,
         },
         beginAtZero: true,
-
       },
     },
   };
 
+
   return (
     <Container>
-      <Box sx={{ flexGrow: 1, mt: 4 }}>
-        <Grid container spacing={4}>
-          <Grid item xs={12} sm={6}>
+      <Typography variant="h4" gutterBottom>
+        Statistiques des absences - {studentName}
+      </Typography>
+      <Box sx={{ flexGrow: 10, mt: 4 }}>
+        <Grid container spacing={4} align="center">
+          <Grid item xs={12}>
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              
+              <DatePicker
+                label="Date de début"
+                value={selectedStartDate}
+                onChange={handleStartDateChange}
+                renderInput={(params) => <TextField {...params} />}
+              />
+              <DatePicker
+                label="Date de fin"
+                value={selectedEndDate}
+                onChange={handleEndDateChange}
+                renderInput={(params) => <TextField {...params} />}
+              />
+            </LocalizationProvider>
+          </Grid>
+          <Grid item xs={12} sm={6} alignItems="left">
             <Card elevation={3}>
               <CardHeader title="Absences par jour de la semaine" />
               <CardContent>
@@ -259,52 +308,30 @@ const AbsencePage = (props) => {
             </Card>
           </Grid>
           <Grid item xs={12} sm={6}>
-          <Paper>
-            <Bar data={chartData} />
-          </Paper>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <Paper>
-            <Pie data={pieChartData} />
-          </Paper>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <Paper>
-            <Bar
-              data={horizontalBarChartData}
-              options={horizontalBarChartOptions}
-            />
-          </Paper>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <Typography variant="h6">Absences par matière :</Typography>
-          <ul>
-            {Object.entries(absencesPercentage).map(([subject, percentage]) => (
-              <li key={subject}>
-                <Typography>
-                  {subject}: {percentage}% ({absencesBySubject[subject]}{" "}
-                  absence(s))
-                </Typography>
-              </li>
-            ))}
-          </ul>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <Typography variant="h6">Absences par mois :</Typography>
-          <ul>
-            {Object.entries(absencesByMonth).map(([month, count]) => (
-              <li key={month}>
-                <Typography>
-                  {monthNames[month - 1]}: {count} absence(s)
-                </Typography>
-              </li>
-            ))}
-          </ul>
-        </Grid>             
+            <Paper>
+              <Bar data={chartData} />
+            </Paper>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+          <Typography variant="h6">Absences par matière</Typography>
+            <Paper>
+              <Pie data={pieChartData} />
+            </Paper>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+          <Typography variant="h6">Absences par mois</Typography>
+            <Paper>
+              <Bar
+                data={horizontalBarChartData}
+                options={horizontalBarChartOptions}
+              />
+            </Paper>
+          </Grid>
+
         </Grid>
       </Box>
     </Container>
   );
-  
 };
+
 export default AbsencePage;

@@ -7,6 +7,8 @@ import Box from '@mui/material/Box';
 import AdminDashboardSearchStudent from './AdminDashboardSearchStudent';
 import AdminDashboardSearchTeacher from './AdminDashboardSearchTeacher';
 import AdminDashboardSearchMatiere from './AdminDashboardSearchMatiere';
+import AdminDashboardSearchPromo from './AdminDashboardSearchPromo';
+import PromoPage from './PromoPage';
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -54,8 +56,9 @@ export default function BasicTabs() {
         <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
           <Tab label="Etudiants" {...a11yProps(0)} />
           <Tab label="Enseignants" {...a11yProps(1)} />
-          <Tab label="Matieres" {...a11yProps(2)} />
-          <Tab label="Administrateurs" {...a11yProps(3)} />
+          <Tab label="Promotions" {...a11yProps(2)} />
+          <Tab label="Matieres" {...a11yProps(3)} />
+          <Tab label="Administrateurs" {...a11yProps(4)} />
         </Tabs>
       </Box>
       <TabPanel value={value} index={0}>
@@ -65,10 +68,13 @@ export default function BasicTabs() {
         <AdminDashboardSearchTeacher />
       </TabPanel>
       <TabPanel value={value} index={2}>
-        <AdminDashboardSearchMatiere />
+        <AdminDashboardSearchPromo />
       </TabPanel>
       <TabPanel value={value} index={3}>
-        A faire
+        <AdminDashboardSearchMatiere />
+      </TabPanel>
+      <TabPanel value={value} index={4}>
+      < PromoPage />
       </TabPanel>
     </Box>
   );

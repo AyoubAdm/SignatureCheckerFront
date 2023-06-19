@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Typography,
@@ -19,6 +20,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 
+
 const MatierePage = () => {
   const [data, setData] = useState([]);
   const location = useLocation();
@@ -29,7 +31,7 @@ const MatierePage = () => {
   const navigate = useNavigate();
 
   const navigateToAbsencePage = (idEtu) => {
-    navigate('/AdminDashboard/student/${idEtu}');
+    navigate(`/AdminDashboard/student/${idEtu}`, { state: {student : idEtu} });
   };
 
   useEffect(() => {
@@ -158,8 +160,7 @@ const MatierePage = () => {
         <Grid container spacing={2} align="center">
           <Grid item xs={12} >
             <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
+             
                   <DatePicker
                     label="Date de début"
                     value={startDate}
@@ -169,8 +170,7 @@ const MatierePage = () => {
                     renderInput={(params) => <TextField {...params} />}
                     format="dd/MM/yyyy"
                   />
-                </Grid>
-                <Grid item xs={12} sm={6}>
+                
                   <DatePicker
                     label="Date de fin"
                     value={endDate}
@@ -180,8 +180,6 @@ const MatierePage = () => {
                     renderInput={(params) => <TextField {...params} />}
                     format="dd/MM/yyyy"
                   />
-                </Grid>
-              </Grid>
             </LocalizationProvider>
           </Grid>
           {filteredData.length > 0 ? (
