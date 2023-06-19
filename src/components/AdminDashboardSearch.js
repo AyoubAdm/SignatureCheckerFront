@@ -55,25 +55,17 @@ export default function BasicTabs() {
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
           <Tab label="Etudiants" {...a11yProps(0)} />
-          <Tab label="Enseignants" {...a11yProps(1)} />
-          <Tab label="Promotions" {...a11yProps(2)} />
-          <Tab label="Matieres" {...a11yProps(3)} />
-          <Tab label="Administrateurs" {...a11yProps(4)} />
+          <Tab label="Matieres" {...a11yProps(1)} />
+          <Tab label="Absences" {...a11yProps(2)} />
         </Tabs>
       </Box>
       <TabPanel value={value} index={0}>
         <AdminDashboardSearchStudent />
       </TabPanel>
       <TabPanel value={value} index={1}>
-        <AdminDashboardSearchTeacher />
-      </TabPanel>
-      <TabPanel value={value} index={2}>
-        <AdminDashboardSearchPromo />
-      </TabPanel>
-      <TabPanel value={value} index={3}>
         <AdminDashboardSearchMatiere />
       </TabPanel>
-      <TabPanel value={value} index={4}>
+      <TabPanel value={value} index={2}>
       < PromoPage />
       </TabPanel>
     </Box>

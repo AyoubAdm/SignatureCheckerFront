@@ -9,7 +9,6 @@ import {
 import { Bar, Line,HorizontalBar  } from "react-chartjs-2";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import frLocale from "date-fns/locale/fr";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 
 const GeneralStatsPage = () => {
@@ -69,7 +68,20 @@ const GeneralStatsPage = () => {
     return acc;
   }, {});
 
-  const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const daysOfWeek = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+
+  const absencesByMonth = filteredData.reduce((acc, curr) => {
+    const month = new Date(curr.dateAbs).getMonth();
+    acc[month] = (acc[month] || 0) + 1;
+    return acc;
+  }, {});
+  
+  // Convertir en tableau pour le graphique
+  const monthAbsencesArray = Object.entries(absencesByMonth).sort(([monthA], [monthB]) => monthA - monthB);
+  
+  // Noms des mois en français
+  const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+  
 
   // Convertir les données en tableaux pour les graphiques
   const studentAbsencesArray = Object.entries(absencesCount);
@@ -77,6 +89,12 @@ const GeneralStatsPage = () => {
   const promoAbsencesArray = Object.entries(absencesByPromo);
   const TDGroupAbsencesArray = Object.entries(absencesByTDGroup);
   const dayAbsencesArray = Object.entries(absencesByDay).sort(([dayA], [dayB]) => dayA - dayB);
+  // Trier par nombre d'absences en ordre décroissant
+const sortedStudentAbsencesArray = studentAbsencesArray.sort((a, b) => b[1] - a[1]);
+
+// Sélectionner uniquement les 10 premiers
+const top10StudentAbsencesArray = sortedStudentAbsencesArray.slice(0, 10);
+
 
   return (
     <Box sx={{ flexGrow: 1, mt: 0 }}>
@@ -124,11 +142,11 @@ const GeneralStatsPage = () => {
             </Typography>
             <Bar
                 data={{
-                    labels: studentAbsencesArray.map(([name]) => name),
+                    labels: top10StudentAbsencesArray.map(([name]) => name),
                     datasets: [
                     {
                         label: 'Absences',
-                        data: studentAbsencesArray.map(([, count]) => count),
+                        data: top10StudentAbsencesArray.map(([, count]) => count),
                         backgroundColor: 'rgb(75, 192, 192)',
                     },
                     ],
@@ -227,6 +245,34 @@ const GeneralStatsPage = () => {
             />
           </Paper>
         </Grid>
+        <Grid item xs={12} md={6}>
+  <Paper elevation={3} sx={{ p: 2 }}>
+    <Typography variant="h6" gutterBottom>
+      Absences par mois
+    </Typography>
+    <Line
+      data={{
+        labels: monthAbsencesArray.map(([month]) => months[month]),
+        datasets: [
+          {
+            label: 'Absences',
+            data: monthAbsencesArray.map(([, count]) => count),
+            backgroundColor: 'rgb(255, 159, 64)',
+          },
+        ],
+      }}
+      options={{
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+          },
+        },
+      }}
+    />
+  </Paper>
+</Grid>
+
       </Grid>
     </Box>
   );
