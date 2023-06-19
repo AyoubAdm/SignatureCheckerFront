@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   Typography,
   Container,
@@ -17,7 +17,26 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 
+import { makeStyles } from "@material-ui/core/styles";
+const useStyles = makeStyles({
+  root: {
+    minWidth: 275,
+    marginBottom: 15,
+    backgroundColor: '#f5f5f5',
+  },
+  title: {
+    fontSize: 20,
+    color: '#3f51b5',
+    fontWeight: 'bold',
+  },
+  content: {
+    fontSize: 16,
+  },
+});
+
 const AbsencePage = (props) => {
+  const classes = useStyles();
+
   const [data, setData] = useState([]);
   const [absencesBySubject, setAbsencesBySubject] = useState({});
   const [absencesByDay, setAbsencesByDay] = useState([]);
@@ -27,16 +46,13 @@ const AbsencePage = (props) => {
   const [absencesOverTime, setAbsencesOverTime] = useState({});
   const [selectedStartDate, setSelectedStartDate] = useState(null);
   const [selectedEndDate, setSelectedEndDate] = useState(null);
-  const[studentName, setStudentName] = useState("");
+  const [studentName, setStudentName] = useState("");
+  const [totalAbsenceHours, setTotalAbsenceHours] = useState(0);
+  const [absenceHoursBySubject, setAbsenceHoursBySubject] = useState({});
+  const [studentInfo, setStudentInfo] = useState({});
 
   const countAbsencesByDayOfWeek = (data) => {
-    const days = [
-      "Lundi",
-      "Mardi",
-      "Mercredi",
-      "Jeudi",
-      "Vendredi",
-    ];
+    const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
     const absencesByDay = Array(5).fill(0);
 
     data.forEach((absence) => {
@@ -99,29 +115,43 @@ const AbsencePage = (props) => {
   };
 
   useEffect(() => {
-    const absences = {};
-
     const fetchData = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/api/absences/etudiant/${idEtu}`, {
-          method: 'GET',
-          headers: {
-            'Authorization': 'Basic ' + window.btoa('admin:admin'),
-          },
-        });
-    
-        const jsonData = await response.json();
-        setData(jsonData);
-    
-        if (jsonData.length > 0) {
-          const studentNamee = jsonData[0].etudiant.nomEtu;
+        const responseAbsences = await fetch(
+          `http://localhost:8080/api/absences/etudiant/${idEtu}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: "Basic " + window.btoa("admin:admin"),
+            },
+          }
+        );
+
+        const jsonDataAbsences = await responseAbsences.json();
+        setData(jsonDataAbsences);
+
+        if (jsonDataAbsences.length > 0) {
+          const studentNamee = jsonDataAbsences[0].etudiant.nomEtu;
           setStudentName(studentNamee);
         }
+
+        // Appel à la nouvelle API pour récupérer les informations de l'étudiant
+        const responseStudentInfo = await fetch(
+          `http://localhost:8080/api/etudiants/${idEtu}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: "Basic " + window.btoa("admin:admin"),
+            },
+          }
+        );
+
+        const jsonDataStudentInfo = await responseStudentInfo.json();
+        setStudentInfo(jsonDataStudentInfo);
       } catch (error) {
-        console.error('Erreur lors de la récupération des données:', error);
+        console.error("Erreur lors de la récupération des données:", error);
       }
     };
-    
 
     fetchData();
   }, [idEtu]);
@@ -140,14 +170,29 @@ const AbsencePage = (props) => {
     });
 
     const absences = {};
+    let totalHours = 0;
+    const hoursBySubject = {};
 
     filteredData.forEach((absence) => {
       const subject = absence.matiere.nomMat.substring(12);
+      const hours = absence.duree / 60; // convert minutes to hours
+
+      totalHours += hours;
+
+      if (!hoursBySubject[subject]) {
+        hoursBySubject[subject] = 0;
+      }
+
+      hoursBySubject[subject] += hours;
+
       if (!absences[subject]) {
         absences[subject] = 0;
       }
       absences[subject]++;
     });
+
+    setTotalAbsenceHours(totalHours);
+    setAbsenceHoursBySubject(hoursBySubject);
 
     setAbsencesBySubject(absences);
     setAbsencesByDay(countAbsencesByDayOfWeek(filteredData));
@@ -266,17 +311,29 @@ const AbsencePage = (props) => {
     },
   };
 
-
   return (
     <Container>
-      <Typography variant="h4" gutterBottom>
-        Statistiques des absences - {studentName}
-      </Typography>
+      <Card className={classes.root} variant="outlined">
+        <CardContent>
+          <Typography className={classes.title} gutterBottom>
+            {studentName}
+          </Typography>
+          <Typography className={classes.content}>
+            Promo: {studentInfo.promo}
+          </Typography>
+          <Typography className={classes.content}>
+            TD: {studentInfo.td}
+          </Typography>
+          <Typography className={classes.content}>
+            TP: {studentInfo.tp}
+          </Typography>
+        </CardContent>
+      </Card>
+
       <Box sx={{ flexGrow: 10, mt: 4 }}>
         <Grid container spacing={4} align="center">
           <Grid item xs={12}>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
-              
               <DatePicker
                 label="Date de début"
                 value={selectedStartDate}
@@ -293,12 +350,36 @@ const AbsencePage = (props) => {
           </Grid>
           <Grid item xs={12} sm={6} alignItems="left">
             <Card elevation={3}>
+              <CardHeader title="Statistiques d'absence" />
+              <CardContent>
+                <Typography align="left">
+                  <strong>
+                    {" "}
+                    Heures totales d'absence: {totalAbsenceHours} heure(s){" "}
+                  </strong>
+                </Typography>
+                <ul>
+                  {Object.entries(absenceHoursBySubject).map(
+                    ([subject, hours]) => (
+                      <li key={subject}>
+                        <Typography align="left">
+                          {subject}: {hours} heure(s)
+                        </Typography>
+                      </li>
+                    )
+                  )}
+                </ul>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={6} alignItems="left">
+            <Card elevation={3}>
               <CardHeader title="Absences par jour de la semaine" />
               <CardContent>
                 <ul>
                   {absencesByDay.map(({ day, absences }) => (
                     <li key={day}>
-                      <Typography>
+                      <Typography align="left">
                         {day}: {absences} absence(s)
                       </Typography>
                     </li>
@@ -308,18 +389,13 @@ const AbsencePage = (props) => {
             </Card>
           </Grid>
           <Grid item xs={12} sm={6}>
-            <Paper>
-              <Bar data={chartData} />
-            </Paper>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-          <Typography variant="h6">Absences par matière</Typography>
+            <Typography variant="h6">Absences par matière</Typography>
             <Paper>
               <Pie data={pieChartData} />
             </Paper>
           </Grid>
-          <Grid item xs={12} sm={6}>
-          <Typography variant="h6">Absences par mois</Typography>
+          <Grid item xs={11} sm={6}>
+            <Typography variant="h6">Absences par mois</Typography>
             <Paper>
               <Bar
                 data={horizontalBarChartData}
@@ -327,7 +403,6 @@ const AbsencePage = (props) => {
               />
             </Paper>
           </Grid>
-
         </Grid>
       </Box>
     </Container>
