@@ -348,7 +348,7 @@ const AbsencePage = (props) => {
               />
             </LocalizationProvider>
           </Grid>
-          <Grid item xs={12} sm={6} alignItems="left">
+          <Grid item xs={12} sm={12} alignItems="left">
             <Card elevation={3}>
               <CardHeader title="Statistiques d'absence" />
               <CardContent>
@@ -372,29 +372,14 @@ const AbsencePage = (props) => {
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} sm={6} alignItems="left">
-            <Card elevation={3}>
-              <CardHeader title="Absences par jour de la semaine" />
-              <CardContent>
-                <ul>
-                  {absencesByDay.map(({ day, absences }) => (
-                    <li key={day}>
-                      <Typography align="left">
-                        {day}: {absences} absence(s)
-                      </Typography>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={12} sm={6}>
+
+          <Grid item xs={12} sm={12}>
             <Typography variant="h6">Absences par matière</Typography>
             <Paper>
               <Pie data={pieChartData} />
             </Paper>
           </Grid>
-          <Grid item xs={11} sm={6}>
+          <Grid item xs={11} sm={12}>
             <Typography variant="h6">Absences par mois</Typography>
             <Paper>
               <Bar

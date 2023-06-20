@@ -330,15 +330,6 @@ export default function PromoPage() {
                               Supprimer
                             </Button>
                           </TableCell>
-                          <TableCell>
-                            <Button
-                              onClick={() => handleClickOpen(absence.idAbs)}
-                              variant="outlined"
-                              color="primary"
-                            >
-                              Justifier
-                            </Button>
-                          </TableCell>
                         </TableRow>
                       ))}
                   </TableBody>

@@ -12,6 +12,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { AuthContext } from './AuthProvider';
 import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import AuthProvider from './AuthProvider';
 
 function Copyright(props) {
   return (
@@ -30,11 +31,12 @@ const theme = createTheme();
 
 export default function Login() {
 
+
   const navigate = useNavigate();
 
   const [error, setError] = React.useState("");
   
-  const { login } = useContext(AuthContext);
+  const { login, isAuthenticated } = useContext(AuthContext);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -51,6 +53,11 @@ export default function Login() {
     }
   };
 
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/admindashboard');
+    }
+  }, [isAuthenticated]);
 
   return (
     <ThemeProvider theme={theme}>
